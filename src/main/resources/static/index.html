@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel 处理示例</title>
+    <style>
+        :root {
+            --primary: #1890ff;
+            --primary-light: #40a9ff;
+            --primary-dark: #096dd9;
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --text: #303133;
+            --text-secondary: #606266;
+            --text-muted: #909399;
+            --border: #e4e7ed;
+            --success: #67c23a;
+            --danger: #f56c6c;
+            --radius: 10px;
+            --font: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: var(--font);
+            font-size: 14px;
+            color: var(--text);
+            background: radial-gradient(1200px 480px at 50% -160px, #e8f3ff 0%, rgba(232, 243, 255, 0) 70%), var(--bg);
+        }
+
+        .topbar {
+            height: 60px;
+            flex: 0 0 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .03);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .brand-mark {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary-dark));
+            box-shadow: 0 4px 10px rgba(24, 144, 255, .28);
+        }
+
+        .brand-tag { color: var(--text-muted); font-size: 12px; font-weight: 400; letter-spacing: .4px; }
+
+        .page {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            max-width: 560px;
+            padding: 36px 36px 30px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 12px 36px rgba(31, 56, 88, .08);
+            overflow: hidden;
+            animation: rise .45s ease-out both;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-light), var(--primary), var(--primary-dark));
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { margin: 0 0 8px; font-size: 22px; font-weight: 600; }
+        .subtitle { margin: 0 0 26px; color: var(--text-secondary); line-height: 1.7; }
+
+        .dropzone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-height: 150px;
+            padding: 20px;
+            text-align: center;
+            border: 1.5px dashed #c8d6e5;
+            border-radius: 8px;
+            background: #fafcff;
+            cursor: pointer;
+            transition: border-color .2s, background .2s, transform .2s;
+        }
+
+        .dropzone:hover, .dropzone.dragging {
+            border-color: var(--primary);
+            background: #f0f8ff;
+        }
+
+        .dropzone.has-file { border-style: solid; border-color: #b7dcff; background: #f5faff; }
+
+        .dropzone input { display: none; }
+
+        .dropzone-icon {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            color: var(--primary);
+            font-size: 20px;
+            background: #e8f3ff;
+            transition: transform .2s;
+        }
+
+        .dropzone:hover .dropzone-icon { transform: translateY(-3px); }
+
+        .dropzone-title { color: var(--text); font-weight: 500; word-break: break-all; }
+        .dropzone-hint { color: var(--text-muted); font-size: 12px; }
+
+        .primary-btn {
+            width: 100%;
+            height: 44px;
+            margin-top: 22px;
+            border: 0;
+            border-radius: 6px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: .5px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            box-shadow: 0 6px 16px rgba(24, 144, 255, .25);
+            transition: transform .18s, box-shadow .18s, filter .18s;
+        }
+
+        .primary-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(24, 144, 255, .32);
+            filter: brightness(1.04);
+        }
+
+        .primary-btn:active:not(:disabled) { transform: translateY(0); }
+
+        .primary-btn:disabled { cursor: not-allowed; filter: grayscale(.5); opacity: .65; box-shadow: none; }
+
+        .status {
+            margin-top: 18px;
+            padding: 11px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.6;
+            word-break: break-all;
+            border-left: 3px solid var(--primary);
+            background: #f4f8fc;
+            color: var(--text-secondary);
+            animation: fade .25s ease-out both;
+        }
+
+        @keyframes fade { from { opacity: .3; } to { opacity: 1; } }
+
+        .status-loading { border-left-color: var(--primary); background: #ecf5ff; color: var(--primary-dark); }
+        .status-success { border-left-color: var(--success); background: #f0f9eb; color: #4a8f2c; }
+        .status-error { border-left-color: var(--danger); background: #fef0f0; color: #c94a4a; }
+
+        .footer {
+            padding: 0 20px 26px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .footer code {
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #ebeff5;
+            color: var(--text-secondary);
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        @media (max-width: 600px) {
+            .topbar { padding: 0 18px; }
+            .brand-tag { display: none; }
+            .page { padding: 24px 14px; align-items: flex-start; }
+            .card { padding: 28px 20px 24px; }
+        }
+    </style>
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">
+        <span class="brand-mark">X</span>
+        <span>Excel 处理示例</span>
+    </div>
+    <span class="brand-tag">RuoYi Style · Demo</span>
+</header>
+
+<main class="page">
+    <section class="card">
+        <h1>上传 Excel 文件</h1>
+        <p class="subtitle">选择文件后点击按钮，后端处理后将结果 Excel 文件流返回并自动下载。</p>
+
+        <label class="dropzone" id="dropzone" for="fileInput">
+            <input type="file" id="fileInput" accept=".xlsx,.xls">
+            <span class="dropzone-icon">&#8593;</span>
+            <span class="dropzone-title" id="fileName">点击选择文件，或拖拽到此处</span>
+            <span class="dropzone-hint">支持 .xlsx / .xls，单文件不超过 20MB</span>
+        </label>
+
+        <button class="primary-btn" id="uploadBtn" type="button">上传并下载结果</button>
+
+        <div class="status" id="status" role="status" aria-live="polite">等待上传</div>
+    </section>
+</main>
+
+<footer class="footer">
+    接口：<code>POST /tool/excel/process</code> &nbsp;·&nbsp; 数据模型 <code>ExcelVo</code> &nbsp;·&nbsp; 业务逻辑 TODO 位于 <code>ExcelProcessServiceImpl#doBusiness</code><br>
+    详细处理逻辑与 ExcelVo 字段由使用者补充
+</footer>
+
+<script>
+    (function () {
+        var fileInput = document.getElementById('fileInput');
+        var dropzone = document.getElementById('dropzone');
+        var fileNameEl = document.getElementById('fileName');
+        var uploadBtn = document.getElementById('uploadBtn');
+        var statusEl = document.getElementById('status');
+
+        function setStatus(type, text) {
+            statusEl.className = type === 'idle' ? 'status' : 'status status-' + type;
+            statusEl.textContent = text;
+        }
+
+        function showFileName(file) {
+            fileNameEl.textContent = file ? file.name : '点击选择文件，或拖拽到此处';
+            dropzone.classList.toggle('has-file', !!file);
+        }
+
+        fileInput.addEventListener('change', function () {
+            var file = fileInput.files && fileInput.files[0];
+            showFileName(file);
+            setStatus('idle', file ? '已选择文件，点击按钮开始处理' : '等待上传');
+        });
+
+        ['dragenter', 'dragover'].forEach(function (eventName) {
+            dropzone.addEventListener(eventName, function (e) {
+                e.preventDefault();
+                dropzone.classList.add('dragging');
+            });
+        });
+        ['dragleave', 'drop'].forEach(function (eventName) {
+            dropzone.addEventListener(eventName, function (e) {
+                e.preventDefault();
+                dropzone.classList.remove('dragging');
+            });
+        });
+        dropzone.addEventListener('drop', function (e) {
+            var files = e.dataTransfer && e.dataTransfer.files;
+            if (files && files.length) {
+                fileInput.files = files;
+                showFileName(files[0]);
+                setStatus('idle', '已选择文件，点击按钮开始处理');
+            }
+        });
+
+        function resolveFileName(disposition) {
+            var fallback = '处理结果.xlsx';
+            if (!disposition) {
+                return fallback;
+            }
+            var utf8 = /filename\*\s*=\s*UTF-8''([^;]+)/i.exec(disposition);
+            if (utf8) {
+                try {
+                    return decodeURIComponent(utf8[1].replace(/^"|"$/g, ''));
+                } catch (e) {
+                    return fallback;
+                }
+            }
+            var plain = /filename\s*=\s*"([^"]+)"/i.exec(disposition);
+            return plain ? plain[1] : fallback;
+        }
+
+        uploadBtn.addEventListener('click', function () {
+            var file = fileInput.files && fileInput.files[0];
+            if (!file) {
+                setStatus('error', '请先选择要上传的 Excel 文件');
+                return;
+            }
+            if (!/\.(xlsx|xls)$/i.test(file.name)) {
+                setStatus('error', '仅支持 .xlsx / .xls 格式的文件');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('file', file);
+            uploadBtn.disabled = true;
+            setStatus('loading', '处理中…');
+
+            fetch('/tool/excel/process', { method: 'POST', body: formData })
+                .then(function (response) {
+                    if (!response.ok) {
+                        return response.json().catch(function () { return {}; })
+                            .then(function (result) {
+                                throw new Error(result.msg || ('处理失败（HTTP ' + response.status + '）'));
+                            });
+                    }
+                    return response.blob().then(function (blob) {
+                        var url = URL.createObjectURL(blob);
+                        var link = document.createElement('a');
+                        link.href = url;
+                        link.download = resolveFileName(response.headers.get('Content-Disposition'));
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+                        setStatus('success', '处理完成，已开始下载结果文件');
+                    });
+                })
+                .catch(function (error) {
+                    setStatus('error', error.message || '请求失败，请确认服务已启动');
+                })
+                .then(function () {
+                    uploadBtn.disabled = false;
+                });
+        });
+    })();
+</script>
+</body>
+</html>
