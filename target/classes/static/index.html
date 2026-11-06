@@ -149,6 +149,50 @@
         .dropzone-title { color: var(--text); font-weight: 500; word-break: break-all; }
         .dropzone-hint { color: var(--text-muted); font-size: 12px; }
 
+        .fields {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text);
+            background: #fafcff;
+            resize: vertical;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+
+        .field-input::placeholder { color: #b6bdc7; }
+
+        .field-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(24, 144, 255, .12);
+        }
+
+        .field-hint {
+            display: block;
+            margin-top: 6px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
         .primary-btn {
             width: 100%;
             height: 44px;
@@ -240,6 +284,21 @@
             <span class="dropzone-hint">支持 .xlsx / .xls，单文件不超过 20MB</span>
         </label>
 
+        <div class="fields">
+            <div class="field">
+                <label class="field-label" for="insertFentryIds">新增 fentryid</label>
+                <textarea class="field-input" id="insertFentryIds" rows="2"
+                          placeholder="多个值可用逗号、空格或换行分隔，例如：1001,1002"></textarea>
+                <span class="field-hint">命中的行会在 insertSql 列生成 INSERT 公式</span>
+            </div>
+            <div class="field">
+                <label class="field-label" for="updateFentryIds">修改 fentryid</label>
+                <textarea class="field-input" id="updateFentryIds" rows="2"
+                          placeholder="多个值可用逗号、空格或换行分隔"></textarea>
+                <span class="field-hint">本次仅随请求提交，updateSql 逻辑暂未启用</span>
+            </div>
+        </div>
+
         <button class="primary-btn" id="uploadBtn" type="button">上传并下载结果</button>
 
         <div class="status" id="status" role="status" aria-live="polite">等待上传</div>
@@ -247,8 +306,8 @@
 </main>
 
 <footer class="footer">
-    接口：<code>POST /tool/excel/process</code> &nbsp;·&nbsp; 数据模型 <code>ExcelVo</code> &nbsp;·&nbsp; 业务逻辑 TODO 位于 <code>ExcelProcessServiceImpl#doBusiness</code><br>
-    详细处理逻辑与 ExcelVo 字段由使用者补充
+    接口：<code>POST /tool/excel/process</code> &nbsp;·&nbsp; 数据模型 <code>ExcelVo</code> &nbsp;·&nbsp; 新增 fentryid 命中行生成 <code>insertSql</code> 公式<br>
+    修改 fentryid 本次仅提交参数，<code>updateSql</code> 逻辑后续补充
 </footer>
 
 <script>
@@ -258,6 +317,8 @@
         var fileNameEl = document.getElementById('fileName');
         var uploadBtn = document.getElementById('uploadBtn');
         var statusEl = document.getElementById('status');
+        var insertFentryIdsEl = document.getElementById('insertFentryIds');
+        var updateFentryIdsEl = document.getElementById('updateFentryIds');
 
         function setStatus(type, text) {
             statusEl.className = type === 'idle' ? 'status' : 'status status-' + type;
@@ -326,6 +387,8 @@
 
             var formData = new FormData();
             formData.append('file', file);
+            formData.append('insertFentryIds', insertFentryIdsEl.value.trim());
+            formData.append('updateFentryIds', updateFentryIdsEl.value.trim());
             uploadBtn.disabled = true;
             setStatus('loading', '处理中…');
 

@@ -41,7 +41,10 @@ public class ExcelProcessController extends BaseController {
     }
 
     @PostMapping("/process")
-    public ResponseEntity<?> process(@RequestParam(value = "file", required = false) MultipartFile file) {
+    public ResponseEntity<?> process(
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "insertFentryIds", required = false, defaultValue = "") String insertFentryIds,
+            @RequestParam(value = "updateFentryIds", required = false, defaultValue = "") String updateFentryIds) {
         if (file == null || file.isEmpty()) {
             return ResponseEntity.badRequest().body(error("请选择要上传的 Excel 文件"));
         }
@@ -50,7 +53,7 @@ public class ExcelProcessController extends BaseController {
         }
 
         try (InputStream inputStream = file.getInputStream()) {
-            byte[] data = excelProcessService.process(inputStream);
+            byte[] data = excelProcessService.process(inputStream, insertFentryIds, updateFentryIds);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType(XLSX_MEDIA_TYPE));
@@ -61,7 +64,7 @@ public class ExcelProcessController extends BaseController {
             headers.setContentLength(data.length);
             return new ResponseEntity<byte[]>(data, headers, HttpStatus.OK);
         } catch (Exception e) {
-            log.error("Excel 处理失败: {}", e.getMessage());
+            log.error("Excel 处理失败", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(error("Excel 处理失败，请检查文件内容是否正确"));
         }
