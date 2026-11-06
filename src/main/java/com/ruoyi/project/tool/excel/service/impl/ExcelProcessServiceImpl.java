@@ -75,7 +75,7 @@ public class ExcelProcessServiceImpl implements IExcelProcessService {
 
             // 新增 fentryid 命中本行时，按输出行号生成 insertSql 公式；未命中置空
             if (insertIdSet.contains(normalizeFentryId(row.getFentryid()))) {
-                String insertSql = "INSERT INTO public.tk_usp_packagelist (fentryid, fdetailid, fseq, fk_usp_si_lotno, fk_usp_boxno, fk_usp_packageno, fk_usp_package_weight, fk_usp_packageunit, fk_usp_reno, fk_usp_si_rod_crush_date) VALUES ('" + row.getFentryid() + "','" + row.getFdetailid() + "','" + row.getFseq() + "','" + row.getFk_usp_si_lotno() + "','" + row.getFk_usp_boxno() + "','" + row.getFk_usp_packageno() + "','" + row.getFk_usp_package_weight() + "','" + row.getFk_usp_packageunit() + "','" + row.getFk_usp_reno() + "','" + row.getFk_usp_si_lotno() + "','" + row.getFk_usp_si_rod_crush_date() + "');";
+                String insertSql = "INSERT INTO public.tk_usp_packagelist (fentryid, fdetailid, fseq, fk_usp_si_lotno, fk_usp_boxno, fk_usp_packageno, fk_usp_package_weight, fk_usp_packageunit, fk_usp_reno, fk_usp_si_rod_crush_date) VALUES ('" + row.getFentryid() + "','" + row.getFdetailid() + "','" + row.getFseq() + "','" + row.getFk_usp_si_lotno() + "','" + row.getFk_usp_boxno() + "','" + row.getFk_usp_packageno() + "','" + row.getFk_usp_package_weight() + "','" + row.getFk_usp_packageunit() + "','" + row.getFk_usp_reno()  + "','" + row.getFk_usp_si_rod_crush_date() + "');";
                 row.setInsertSql(insertSql);
             } else {
                 row.setInsertSql(null);
