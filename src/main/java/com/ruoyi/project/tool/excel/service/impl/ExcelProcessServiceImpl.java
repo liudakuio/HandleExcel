@@ -74,7 +74,7 @@ public class ExcelProcessServiceImpl implements IExcelProcessService {
             }
 
             // 新增 fentryid 命中本行时，按输出行号生成 insertSql 公式；未命中置空
-            if (insertIdSet.contains(normalizeFentryId(row.getFentryid()))) {
+            if (!updateFentryIds.contains(normalizeFentryId(row.getFentryid()))) {
                 String insertSql = "INSERT INTO public.tk_usp_packagelist (fentryid, fdetailid, fseq, fk_usp_si_lotno, fk_usp_boxno, fk_usp_packageno, fk_usp_package_weight, fk_usp_packageunit, fk_usp_reno, fk_usp_si_rod_crush_date) VALUES ('" + row.getFentryid() + "','" + row.getFdetailid() + "','" + row.getFseq() + "','" + row.getFk_usp_si_lotno() + "','" + row.getFk_usp_boxno() + "','" + row.getFk_usp_packageno() + "','" + row.getFk_usp_package_weight() + "','" + row.getFk_usp_packageunit() + "','" + row.getFk_usp_reno()  + "','" + row.getFk_usp_si_rod_crush_date() + "');";
                 row.setInsertSql(insertSql);
             } else {
@@ -82,7 +82,11 @@ public class ExcelProcessServiceImpl implements IExcelProcessService {
             }
             //修改语句
             if (updateFentryIds.contains(normalizeFentryId(row.getFentryid()))) {
-                String updateSql = "UPDATE public.tk_usp_packagelist SET fk_usp_si_lotno = '" + row.getFk_usp_si_lotno() + "', fk_usp_boxno = '" + row.getFk_usp_boxno() + "' WHERE fentryid = " + row.getFentryid() + " AND fk_usp_packageno = '" + row.getFk_usp_packageno() + "';";
+                String updateSql = "UPDATE public.tk_usp_packagelist SET fk_usp_si_lotno = '" + row.getFk_usp_si_lotno()
+                        + "', fk_usp_boxno = '" + row.getFk_usp_boxno()
+                        + "', fk_usp_package_weight = '" + row.getFk_usp_package_weight()
+                        + "', fk_usp_packageunit = '" + row.getFk_usp_packageunit()
+                        + "' WHERE fentryid = " + row.getFentryid() + " AND fk_usp_packageno = '" + row.getFk_usp_packageno() + "';";
                 row.setUpdateSql(updateSql);
             } else {
                 row.setUpdateSql(null);
